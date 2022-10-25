@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="7c0eb38a-b1d0-4d90-bdbc-47a5709b201f" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<global-property doc:name="Global Property" doc:id="a937d945-3013-4059-a2cc-f9263b7b9acc" name="env" value="dev" />
+	<secure-properties:config name="Secure_Properties_Config2" doc:name="Secure Properties Config" doc:id="576305a3-f19f-4f30-86e3-d7dfa6a80a5a" file="properties/${env}-config.yaml" key="${encryptedKeyy.keyy}" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<flow name="test-studioFlow" doc:id="e15d8e55-e706-427a-a18c-bad501855711" >
+		<http:listener doc:name="Listener" doc:id="f0fddc47-e6c4-4643-83e3-0871e104a584" config-ref="HTTP_Listener_config" path="/test">
+			<http:error-response >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<set-payload value="#[{ &quot;message&quot; : Mule::p('secure::encryptedKeyy.secKey')}]" doc:name="Set Payload" doc:id="5c8b3aa1-93d9-452b-a838-18e9e7060555" />
+		<ee:transform doc:name="Transform Message" doc:id="caded8ae-36d2-4a55-b819-19dd0fe36d41" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
